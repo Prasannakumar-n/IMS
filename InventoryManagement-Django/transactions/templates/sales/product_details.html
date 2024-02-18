@@ -1,0 +1,23 @@
+<!-- sales/product_details.html -->
+{% extends "base.html" %}
+
+{% block title %} Product Details: {{ product_name }} {% endblock title %}
+
+{% block content %}
+    <div style="margin-top: 20px; color: black;">
+        <h1>Product Details: {{ product_name }}</h1>
+        <p>Product Name: {{ product_name }}</p>
+        
+        <!-- Change the color of the horizontal line to white -->
+        <hr style="background-color: white;">
+
+        <h2 style="color: black;">Sales Chart for the Previous Six Months</h2>
+        
+        <!-- Placeholder for the graph -->
+        <div style="border: 1px solid #ccc; height: 300px; width: 100%; margin-top: 20px;">
+            <!-- You can add your chart rendering code here based on 'months' and 'monthly_sales_data' -->
+            <!-- This div will act as a placeholder for your graph -->
+            <!-- Feel free to add more styling or adjust the height/width as needed -->
+        </div>
+    </div>
+{% endblock content %}

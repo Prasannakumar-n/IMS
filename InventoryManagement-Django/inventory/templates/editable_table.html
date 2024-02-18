@@ -1,0 +1,33 @@
+<!-- editable_table.html -->
+
+{% extends "base.html" %}
+
+{% block title %} Editable Table {% endblock title %}
+
+{% block content %}
+    <h2>{{ product.name }} - {{ product.sub_category }}</h2>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                {% for related_product in related_products %}
+                    <th>
+                        {{ related_product.sub_category }}
+                        {% if related_product.cost %}
+                            (₹{{ related_product.cost }})
+                        {% endif %}
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ product.name }}</td>
+                {% for related_product in related_products %}
+                    <td>{{ related_product.quantity }}</td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+{% endblock content %}
