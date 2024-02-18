@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import Http404
 from django.views.generic import (
     View, 
     ListView,
@@ -167,7 +168,13 @@ class PurchaseCreateView(View):
                 billitem = form.save(commit=False)
                 billitem.billno = billobj                                       # links the bill object to the items
                 # gets the stock item
-                stock = get_object_or_404(Stock, name=billitem.stock.name)       # gets the item
+                stock = Stock.objects.filter(name=billitem.stock.name, sub_category=billitem.stock.sub_category).first()
+
+                if stock is None:
+                    # Handle the case where no Stock object is found
+                    # You can raise a Http404 exception or handle it in another way based on your requirements
+                    raise Http404("Stock not found for the given name and sub_category")
+
                 # calculates the total price
                 billitem.totalprice = billitem.perprice * billitem.quantity
                 # updates quantity in stock db
@@ -244,7 +251,12 @@ class SaleCreateView(View):
                 billitem = form.save(commit=False)
                 billitem.billno = billobj                                       # links the bill object to the items
                 # gets the stock item
-                stock = get_object_or_404(Stock, name=billitem.stock.name)      
+                stock_name = billitem.stock.name
+                stock_sub_category = billitem.stock.sub_category
+
+                # Modify the line to use both name and sub_category
+                stock = get_object_or_404(Stock, name=stock_name, sub_category=stock_sub_category)
+     
                 # calculates the total price
                 billitem.totalprice = billitem.perprice * billitem.quantity
                 # updates quantity in stock db

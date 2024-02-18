@@ -40,7 +40,12 @@
                 <td class=""> {{ sale.name }} <br> <small style="color: #909494">Ph No : {{ sale.phone }}</small> </td>
                 <td class="align-middle">
                     {% for item in sale.get_items_list %}
-                        <a href="{% url 'product-details' item.stock.name %}">{{ item.stock.name }}</a><br>
+                        <a href="{% url 'product-details' item.stock.name %}">
+                            {{ item.stock.name }}
+                            {% if item.stock.sub_category %}
+                                ({{ item.stock.sub_category }})
+                            {% endif %}
+                        </a><br>
                     {% endfor %}
                 </td>
                 <td class="align-middle">{% for item in sale.get_items_list %} {{ item.quantity }} <br> {% endfor %}</td>     
