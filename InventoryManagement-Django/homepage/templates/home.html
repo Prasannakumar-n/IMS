@@ -1,16 +1,27 @@
 {% extends "base.html" %}
-<!-- Log on to freeprojectscodes.com for more projects -->
 {% load static %}
-
 
 {% block title %} Home {% endblock title %}
 
-
 {% block content %}
-
-    <div style="color:#464646; font-style: bold; font-size: 3rem; border-bottom: 1px solid #464646;">Welcome, {{ request.user.username }}</div>
+    <div style="color:#464646; font-style: bold; font-size: 3rem; border-bottom: 1.2mm solid #464646;">Welcome, {{ request.user.username }}</div>
 
     <br>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="productDropdown">Select Product:</label>
+                <select class="form-control" id="productDropdown">
+                    <option value="">---------</option>
+                    <option value="show_all">Show All</option> <!-- New option for Show All -->
+                    {% for item in product_items %}
+                        <option value="{{ item.name }}">{{ item.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
 
     <div id="container" style="position: relative; height:45vh; border: 1.2mm ridge #4e6570; border-radius: 30px;" class="align-middle table-bordered">
         <canvas id="bar-graph"></canvas>
@@ -30,17 +41,16 @@
     <br>
 
     <div class="content-section">
-        <div class="row"><!-- Log on to freeprojectscodes.com for more projects -->
-
+        <div class="row">
             <div class="col-md-6">
                 <div style="color: #4e6570; font-style: bold; font-size: 1.3em; border-bottom: 2px solid #4e6570">Recent Sales</div><br>
                 {% for item in sales %}
                     {% if not forloop.first %}
                         <br><div style="border-bottom: 0.5px solid #4e6570"></div><br>
                     {% endif %}
-                    <div class="row">               
-                        <div class="col-md-9"> 
-                            Bill No: #{{ item.billno }} <br> 
+                    <div class="row">
+                        <div class="col-md-9">
+                            Bill No: #{{ item.billno }} <br>
                             Purchased by <b>{{ item.name }}</b> <br>
                             <small><i>{{ item.time.date }}</i></small>
                         </div>
@@ -55,9 +65,9 @@
                     {% if not forloop.first %}
                         <br><div style="border-bottom: 0.5px solid #4e6570"></div><br>
                     {% endif %}
-                    <div class="row">   <!-- Log on to freeprojectscodes.com for more projects -->            
-                        <div class="col-md-9"> 
-                            Bill No: #{{ item.billno }} <br> 
+                    <div class="row">
+                        <div class="col-md-9">
+                            Bill No: #{{ item.billno }} <br>
                             Purchased by <b>{{ item.supplier.name }}</b> <br>
                             <small><i>{{ item.time.date }}</i></small>
                         </div>
@@ -65,16 +75,14 @@
                     </div>
                 {% endfor %}
             </div>
-
         </div>
-    </div><!-- Log on to freeprojectscodes.com for more projects -->
+    </div>
 
     <!-- Loading Chart JS -->
-    <script src="{% static 'js/Chart.min.js' %}"></script>  
+    <script src="{% static 'js/Chart.min.js' %}"></script>
     <script>
         Chart.defaults.global.defaultFontColor = '#3c3c3c';
-
-        //configuration for the bar graph
+    
         var barConfig = {
             type: 'bar',
             data: {
@@ -88,16 +96,39 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true  // Set the y-axis to begin at zero
+                    }
+                },
             },
         };
-
-
-        //runs all charts on loading the webpage
+    
         window.onload = function() {
             var ctx = document.getElementById('bar-graph').getContext('2d');
             window.BarStock = new Chart(ctx, barConfig);
         };
-
+    
+        document.getElementById('productDropdown').addEventListener('change', function () {
+            updateGraph(this.value);
+        });
+    
+        function updateGraph(selectedProduct) {
+            if (selectedProduct === "") {
+                // If "All Products" is selected, redirect to the home page
+                window.location.href = '{% url "home" %}';
+            } else if (selectedProduct === "show_all") {
+                // If "Show All" is selected, redirect to the home page
+                window.location.href = '{% url "home" %}';
+            } else {
+                // Redirect to the page with the selected product as a filter
+                window.location.href = `?product=${selectedProduct}`;
+            }
+        }
+        
+        
+    
     </script>
+    
 
 {% endblock content %}
