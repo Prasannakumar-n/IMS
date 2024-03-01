@@ -11,7 +11,10 @@
     <div class="row" style="color: #575757; font-style: bold; font-size: 3rem;">
         <div class="col-md-8">Suppliers List</div>
         <div class="col-md-4">       <!-- Log on to freeprojectscodes.com for more projects -->        
-            <div style="float:right;"> <a class="btn btn-success" href="{% url 'new-supplier' %}">Add New Supplier</a> </div>
+            <div style="float:right;">
+                 <a class="btn btn-success" href="{% url 'new-supplier' %}">Add New Supplier</a> 
+                 <button class="btn btn-primary" onclick="exportToExcel()">Export to Excel</button>
+            </div>
         </div>
     </div>
 
@@ -73,6 +76,7 @@
 
         {% endif %}
     </div>
+    
 
 {% else %}
 
@@ -84,5 +88,37 @@
 
 {% endif %}
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.2/xlsx.full.min.js"></script>
+    <script>
+        function exportToExcel() {
+            console.log('Exporting to Excel...');
+            // Get table data
+            var table = document.querySelector('.table-css');
+    
+            if (table) {
+                // Create a new worksheet
+                var ws = XLSX.utils.aoa_to_sheet([["Name", "Contact", "GSTIN No"]]);
+    
+                // Iterate over rows in the table and extract relevant data
+                table.querySelectorAll('tbody tr').forEach(function(row) {
+                    var rowData = [
+                        row.querySelector('td:nth-child(1)').innerText, // Name
+                        row.querySelector('td:nth-child(2)').innerText, // Contact
+                        row.querySelector('td:nth-child(3)').innerText  // GSTIN No
+                    ];
+                    XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: -1 });
+                });
+    
+                // Create a workbook with the worksheet data
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Suppliers');
+    
+                // Save the workbook as an Excel file
+                XLSX.writeFile(wb, 'suppliers_list.xlsx');
+            } else {
+                console.error("Table with class 'table-css' not found.");
+            }
+        }
+    </script>
 
 {% endblock content %}

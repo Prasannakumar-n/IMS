@@ -55,6 +55,7 @@
                     </tr>
                 {% endfor %}
             </tbody>
+            <button type="button" onclick="exportTableToExcel()">Export to Excel</button>
         </table>
 
 
@@ -96,8 +97,35 @@
 
 <a href="{% url 'reorder-products' %}" class="btn btn-warning btn-sm">Reorder Products</a>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.2/xlsx.full.min.js"></script>
 
     <script>
+
+        function exportTableToExcel() {
+            console.log('Exporting to Excel...');
+            // Get table data
+            var table = document.querySelector('.table-css');
+
+            // Create a new worksheet
+            var ws = XLSX.utils.aoa_to_sheet([["Stock Name", "Current Stock in Inventory"]]);
+
+            // Iterate over rows in the table and extract relevant data
+            document.querySelectorAll('.table-css tbody tr').forEach(function(row) {
+                var rowData = [
+                    row.querySelector('td:nth-child(1)').innerText, // Stock Name
+                    row.querySelector('td:nth-child(2)').innerText // Current Stock in Inventory
+                ];
+                XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: -1 });
+            });
+
+            // Create a workbook with the worksheet data
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    
+            // Save the workbook as an Excel file
+            XLSX.writeFile(wb, 'inventory_list.xlsx');
+        }
+        
         function toggleCostColumn() {
             var costColumnHeader = document.querySelector(".cost-column-header");
             var costColumns = document.querySelectorAll(".cost-column");
@@ -109,7 +137,9 @@
             costColumns.forEach(function(column) {
                 column.style.display = displayCostCheckbox.checked ? "table-cell" : "none";
             });
-        }
+            
+        
+}
     </script>
 
 {% endblock content %}

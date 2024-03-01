@@ -8,6 +8,7 @@ class Stock(models.Model):
     cost = models.DecimalField(max_digits=10, decimal_places=2)
     is_deleted = models.BooleanField(default=False)
     is_selected = models.BooleanField(default=False)
+    total_sales_value = models.IntegerField(default=0) 
 
     reorder_point = models.IntegerField(default=0)
 

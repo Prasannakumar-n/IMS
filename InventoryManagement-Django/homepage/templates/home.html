@@ -4,6 +4,16 @@
 {% block title %} Home {% endblock title %}
 
 {% block content %}
+    <style>
+        .graph-container {
+            position: relative;
+            height: 45vh;
+            border: 1.2mm ridge #4e6570;
+            border-radius: 30px;
+            display: none;
+        }
+    </style>
+
     <div style="color:#464646; font-style: bold; font-size: 3rem; border-bottom: 1.2mm solid #464646;">Welcome, {{ request.user.username }}</div>
 
     <br>
@@ -21,10 +31,28 @@
                 </select>
             </div>
         </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="dataDropdown">Select Data:</label>
+                <select class="form-control" id="dataDropdown">
+                    <option value="quantity" selected>Inventory Quantity</option>
+                    <option value="cost">Cost</option>
+                    <option value="sales">Sales</option>
+                </select>
+            </div>
+        </div>
     </div>
 
-    <div id="container" style="position: relative; height:45vh; border: 1.2mm ridge #4e6570; border-radius: 30px;" class="align-middle table-bordered">
-        <canvas id="bar-graph"></canvas>
+    <div id="quantity-container" class="graph-container">
+        <canvas id="quantity-graph"></canvas>
+    </div>
+
+    <div id="cost-container" class="graph-container">
+        <canvas id="cost-graph"></canvas>
+    </div>
+
+    <div id="sales-value-container" class="graph-container">
+        <canvas id="sales-value-graph"></canvas>
     </div>
 
     <br>
@@ -82,8 +110,10 @@
     <script src="{% static 'js/Chart.min.js' %}"></script>
     <script>
         Chart.defaults.global.defaultFontColor = '#3c3c3c';
-    
-        var barConfig = {
+
+        console.log("Cost Data:", {{ cost_data|safe }});
+
+        var quantityConfig = {
             type: 'bar',
             data: {
                 datasets: [{
@@ -103,17 +133,87 @@
                 },
             },
         };
-    
-        window.onload = function() {
-            var ctx = document.getElementById('bar-graph').getContext('2d');
-            window.BarStock = new Chart(ctx, barConfig);
+
+        var costConfig = {
+            type: 'bar',
+            data: {
+                datasets: [{
+                    backgroundColor: '#4caf50',
+                    label: 'Cost of Products',
+                    data: {{ cost_data|safe }},
+                }],
+                labels: {{ labels|safe }}
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true  // Set the y-axis to begin at zero
+                    }
+                },
+            },
         };
-    
-        document.getElementById('productDropdown').addEventListener('change', function () {
-            updateGraph(this.value);
+        var salesValueConfig = {
+            type: 'bar',
+            data: {
+                datasets: [{
+                    backgroundColor: '#ff9800',
+                    label: 'Sales Value',
+                    data: {{ sales_data|safe }},
+                }],
+                labels: {{ labels|safe }}
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true  // Set the y-axis to begin at zero
+                    }
+                },
+            },
+        };
+
+        window.onload = function () {
+            var quantityCtx = document.getElementById('quantity-graph').getContext('2d');
+            window.QuantityBar = new Chart(quantityCtx, quantityConfig);
+
+            var costCtx = document.getElementById('cost-graph').getContext('2d');
+            window.CostBar = new Chart(costCtx, costConfig);
+
+            var salesValueCtx = document.getElementById('sales-value-graph').getContext('2d');
+            window.SalesValueBar = new Chart(salesValueCtx, salesValueConfig);
+
+            // Show the initial graph (quantity)
+            document.getElementById('quantity-container').style.display = 'block';
+        };
+
+        document.getElementById('dataDropdown').addEventListener('change', function () {
+            var selectedData = this.value;
+
+            // Hide all graphs initially
+            document.getElementById('quantity-container').style.display = 'none';
+            document.getElementById('cost-container').style.display = 'none';
+            document.getElementById('sales-value-container').style.display = 'none';
+
+            // Show the selected graph based on the dropdown value
+            if (selectedData === 'quantity') {
+                document.getElementById('quantity-container').style.display = 'block';
+            } else if (selectedData === 'cost') {
+                document.getElementById('cost-container').style.display = 'block';
+                window.CostBar = new Chart(document.getElementById('cost-graph').getContext('2d'), costConfig);
+            } else if (selectedData === 'sales') {
+                document.getElementById('sales-value-container').style.display = 'block';
+                window.SalesValueBar = new Chart(document.getElementById('sales-value-graph').getContext('2d'), salesValueConfig);
+            }
         });
-    
-        function updateGraph(selectedProduct) {
+
+        document.getElementById('productDropdown').addEventListener('change', function () {
+            updateGraphs(this.value, document.getElementById('dataDropdown').value);
+        });
+
+        function updateGraphs(selectedProduct, selectedData) {
             if (selectedProduct === "") {
                 // If "All Products" is selected, redirect to the home page
                 window.location.href = '{% url "home" %}';
@@ -121,14 +221,10 @@
                 // If "Show All" is selected, redirect to the home page
                 window.location.href = '{% url "home" %}';
             } else {
-                // Redirect to the page with the selected product as a filter
-                window.location.href = `?product=${selectedProduct}`;
+                // Redirect to the page with the selected product and data as filters
+                window.location.href = `?product=${selectedProduct}&data=${selectedData}`;
             }
         }
-        
-        
-    
-    </script>
-    
 
+    </script>
 {% endblock content %}

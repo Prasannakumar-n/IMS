@@ -43,6 +43,18 @@
             <label for="{{ form.gstin.id_for_label }}">GSTIN No:</label>
             {{ form.gstin }}
         </div>
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Error!</strong> Please correct the following errors:
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field|title }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 
         <br>
 

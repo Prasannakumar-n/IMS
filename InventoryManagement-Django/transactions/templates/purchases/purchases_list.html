@@ -11,7 +11,10 @@
     <div class="row" style="color: #575757; font-style: bold; font-size: 3rem;">
         <div class="col-md-8">Purchases List</div>
         <div class="col-md-4">            <!-- Log on to freeprojectscodes.com for more projects -->   
-            <div style="float:right;"> <a class="btn btn-success" href="{% url 'select-supplier' %}">New Incoming Stock</a> </div>
+            <div style="float:right;"> 
+                <a class="btn btn-success" href="{% url 'select-supplier' %}">New Incoming Stock</a> 
+                <button class="btn btn-primary" onclick="exportPurchasesToExcel()">Export to Excel</button>
+            </div>
         </div>
     </div>
 
@@ -89,5 +92,41 @@
     <div style="color: #575757; font-style: bold; font-size: 1.5rem; text-align: center;">The records are empty. Please try adding some.</div>
 <!-- Log on to freeprojectscodes.com for more projects -->
 {% endif %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+<script>
+    function exportPurchasesToExcel() {
+        console.log('Exporting Purchases to Excel...');
+        // Get table data
+        var table = document.querySelector('.table-css');
+
+        if (table) {
+            // Create a new worksheet
+            var ws = XLSX.utils.aoa_to_sheet([["Bill No.", "Supplier", "Stocks Purchased", "Quantity Purchased", "Total Purchased Price", "Purchased Date"]]);
+
+            // Iterate over rows in the table and extract relevant data
+            table.querySelectorAll('tbody tr').forEach(function(row) {
+                var rowData = [
+                    row.querySelector('td:nth-child(1)').innerText, // Bill No.
+                    row.querySelector('td:nth-child(2)').innerText, // Supplier
+                    row.querySelector('td:nth-child(3)').innerText, // Stocks Purchased
+                    row.querySelector('td:nth-child(4)').innerText, // Quantity Purchased
+                    row.querySelector('td:nth-child(5)').innerText, // Total Purchased Price
+                    row.querySelector('td:nth-child(6)').innerText  // Purchased Date
+                ];
+                XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: -1 });
+            });
+
+            // Create a workbook with the worksheet data
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Purchases');
+
+            // Save the workbook as an Excel file
+            XLSX.writeFile(wb, 'purchases_list.xlsx');
+        } else {
+            console.error("Table with class 'table-css' not found.");
+        }
+    }
+</script>
 
 {% endblock content %}

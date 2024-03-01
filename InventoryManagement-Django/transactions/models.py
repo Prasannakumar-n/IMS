@@ -7,7 +7,7 @@ class Supplier(models.Model):
     phone = models.CharField(max_length=12, unique=True)
     address = models.CharField(max_length=200)
     email = models.EmailField(max_length=254, unique=True)
-    gstin = models.CharField(max_length=10, unique=True)
+    gstin = models.CharField(max_length=15, unique=True)
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
@@ -82,12 +82,16 @@ class SaleBill(models.Model):
             total += item.totalprice
         return total
 
+from django.db import models
+from inventory.models import Stock
+
 class SaleItem(models.Model):
     billno = models.ForeignKey(SaleBill, on_delete=models.CASCADE, related_name='salebillno')
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name='saleitem')
     quantity = models.IntegerField(default=1)
     perprice = models.IntegerField(default=1)
     totalprice = models.IntegerField(default=1)
+    total_sales_value = models.IntegerField(default=0)  # New field for total sales value
 
     def __str__(self):
         return f"Bill no: {self.billno.billno}, Item = {self.stock.get_full_name()}"
