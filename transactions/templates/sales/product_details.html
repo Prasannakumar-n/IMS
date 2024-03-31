@@ -1,4 +1,5 @@
-<!-- sales/product_details.html -->
+<!-- product_details.html -->
+
 {% extends "base.html" %}
 
 {% block title %} Product Details: {{ product_name }} {% endblock title %}
@@ -13,11 +14,37 @@
 
         <h2 style="color: black;">Sales Chart for the Previous Six Months</h2>
         
-        <!-- Placeholder for the graph -->
-        <div style="border: 1px solid #ccc; height: 300px; width: 100%; margin-top: 20px;">
-            <!-- You can add your chart rendering code here based on 'months' and 'monthly_sales_data' -->
-            <!-- This div will act as a placeholder for your graph -->
-            <!-- Feel free to add more styling or adjust the height/width as needed -->
-        </div>
+        <!-- Graph Container -->
+        <canvas id="salesChart" width="800" height="400"></canvas>
     </div>
+
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- JavaScript to render the sales chart -->
+    <script>
+        var ctx = document.getElementById('salesChart').getContext('2d');
+        var salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ months|safe }},
+                datasets: [{
+                    label: 'Sales Quantity',
+                    data: {{ monthly_sales_data|safe }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
 {% endblock content %}

@@ -378,25 +378,43 @@ class SaleBillView(View):
         }
         return render(request, self.template_name, context)
     
-from django.shortcuts import render
+# views.py
+
+from django.shortcuts import render, get_object_or_404
 from django.views import View
+from .models import SaleItem
+from datetime import datetime, timedelta
+from collections import defaultdict
 
 class ProductDetailsView(View):
     template_name = 'sales/product_details.html'
 
     def get(self, request, product_name):
-        # Add any logic or context data you need for the product details page
-        context = {'product_name': product_name}
+        # Retrieve the product's sales data from the database
+        sales_data = SaleItem.objects.filter(stock__name=product_name)
+
+        # Aggregate sales data by month
+        aggregated_data = defaultdict(int)
+        for sale in sales_data:
+            month_year = sale.billno.time.strftime('%Y-%m')  # Extract month and year
+            aggregated_data[month_year] += sale.quantity
+
+        # Prepare data for graph
+        months = []
+        monthly_sales_data = []
+        current_month = datetime.now().replace(day=1)  # Start from the beginning of the current month
+        for i in range(6):
+            month_year = current_month.strftime('%Y-%m')
+            months.append(current_month.strftime('%b %Y'))
+            monthly_sales_data.append(aggregated_data[month_year])
+            current_month -= timedelta(days=1)  # Move to the previous month
+
+        # Prepare context data for rendering template
+        context = {
+            'product_name': product_name,
+            'months': months[::-1],  # Reverse the list to display in ascending order
+            'monthly_sales_data': monthly_sales_data[::-1],  # Reverse the list
+        }
+
         return render(request, self.template_name, context)
 
-
-from django.shortcuts import render
-from django.views import View
-
-class ProductDetailsView(View):
-    template_name = 'sales/product_details.html'
-
-    def get(self, request, product_name):
-        # Add any logic or context data you need for the product details page
-        context = {'product_name': product_name}
-        return render(request, self.template_name, context)
