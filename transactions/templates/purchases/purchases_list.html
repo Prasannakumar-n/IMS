@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% load widget_tweaks %}
 
 
@@ -10,7 +9,7 @@
     
     <div class="row" style="color: #575757; font-style: bold; font-size: 3rem;">
         <div class="col-md-8">Purchases List</div>
-        <div class="col-md-4">            <!-- Log on to freeprojectscodes.com for more projects -->   
+        <div class="col-md-4">           
             <div style="float:right;"> 
                 <a class="btn btn-success" href="{% url 'select-supplier' %}">New Incoming Stock</a> 
                 <button class="btn btn-primary" onclick="exportPurchasesToExcel()">Export to Excel</button>
@@ -19,6 +18,9 @@
     </div>
 
     <br>
+
+    <label for="datepicker">Select Date:</label>
+    <input type="date" id="datepicker">
 
     <table class="table table-css table-hover table-bordered">
 
@@ -36,7 +38,7 @@
 
 {% if bills %}
 
-        <tbody>         
+        <tbody id="purchaseTableBody">         
             {% for purchase in bills %}
             <tr>
                 <td class="align-middle"> <p>{{ purchase.billno }}</p> </td>
@@ -47,11 +49,11 @@
                         <a href="{% url 'supplier' purchase.supplier.name %}">{{ purchase.supplier }}</a> <br> 
                     {% endif %}
                     <small style="color: #909494">Ph No : {{ purchase.supplier.phone }}</small> 
-                </td><!-- Log on to freeprojectscodes.com for more projects -->
+                </td>
                 <td class="align-middle">{% for item in purchase.get_items_list %} {{ item.stock.name }} <br> {% endfor %}</td>
                 <td class="align-middle">{% for item in purchase.get_items_list %} {{ item.quantity }} <br> {% endfor %}</td>     
                 <td class="align-middle">${{ purchase.get_total_price }}</td>
-                <td class="align-middle">{{ purchase.time.date }}</td>
+                <td class="align-middle">{{ purchase.time|date:"F" }} {{ purchase.time|date:"d," }} {{ purchase.time|date:"Y" }}</td>
                 <td class="align-middle"> <a href="{% url 'purchase-bill' purchase.billno %}" class="btn btn-secondary btn-sm">View Bill</a> <a href="{% url 'delete-purchase' purchase.pk %}" class="btn btn-danger btn-sm">Delete Bill</a> </td>
             </tr>
             {% endfor %}
@@ -85,12 +87,12 @@
 
 {% else %}
 
-        <tbody></tbody>  <!-- Log on to freeprojectscodes.com for more projects --> 
+        <tbody></tbody> 
     </table>
 
     <br><br><br><br><br><br><br><br>
     <div style="color: #575757; font-style: bold; font-size: 1.5rem; text-align: center;">The records are empty. Please try adding some.</div>
-<!-- Log on to freeprojectscodes.com for more projects -->
+
 {% endif %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
@@ -106,15 +108,17 @@
 
             // Iterate over rows in the table and extract relevant data
             table.querySelectorAll('tbody tr').forEach(function(row) {
-                var rowData = [
-                    row.querySelector('td:nth-child(1)').innerText, // Bill No.
-                    row.querySelector('td:nth-child(2)').innerText, // Supplier
-                    row.querySelector('td:nth-child(3)').innerText, // Stocks Purchased
-                    row.querySelector('td:nth-child(4)').innerText, // Quantity Purchased
-                    row.querySelector('td:nth-child(5)').innerText, // Total Purchased Price
-                    row.querySelector('td:nth-child(6)').innerText  // Purchased Date
-                ];
-                XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: -1 });
+                if (row.style.display !== 'none') {
+                    var rowData = [
+                        row.querySelector('td:nth-child(1)').innerText, // Bill No.
+                        row.querySelector('td:nth-child(2)').innerText, // Supplier
+                        row.querySelector('td:nth-child(3)').innerText, // Stocks Purchased
+                        row.querySelector('td:nth-child(4)').innerText, // Quantity Purchased
+                        row.querySelector('td:nth-child(5)').innerText, // Total Purchased Price
+                        row.querySelector('td:nth-child(6)').innerText  // Purchased Date
+                    ];
+                    XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: -1 });
+                }
             });
 
             // Create a workbook with the worksheet data
@@ -127,6 +131,31 @@
             console.error("Table with class 'table-css' not found.");
         }
     }
+
+    function formatDate(dateString) {
+        var date = new Date(dateString);
+        var options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+    
+    // Function to filter purchases based on selected date
+    document.getElementById('datepicker').addEventListener('change', function() {
+        var selectedDate = this.value;
+        var formattedSelectedDate = formatDate(selectedDate);
+        var purchaseTableBody = document.getElementById('purchaseTableBody');
+        document.querySelectorAll('#purchaseTableBody tr').forEach(function(row) {
+            var dateColumn = row.querySelector('td:nth-child(6)').innerText.trim();
+            if (selectedDate === '') {
+                row.style.display = 'table-row';
+            } else {
+                if (dateColumn === formattedSelectedDate) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
 </script>
 
 {% endblock content %}

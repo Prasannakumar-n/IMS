@@ -212,7 +212,8 @@ class PurchaseDeleteView(SuccessMessageMixin, DeleteView):
 
 
 
-# shows the list of bills of all sales 
+from django.utils import timezone
+
 class SaleView(ListView):
     model = SaleBill
     template_name = "sales/sales_list.html"
@@ -220,6 +221,27 @@ class SaleView(ListView):
     ordering = ['-time']
     paginate_by = 10
 
+    from django.db.models.functions import TruncDate
+
+class SaleView(ListView):
+    model = SaleBill
+    template_name = "sales/sales_list.html"
+    context_object_name = 'bills'
+    ordering = ['-time']
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        selected_date = self.request.GET.get('selected_date')
+        
+        if selected_date:
+            try:
+                selected_date_obj = datetime.strptime(selected_date, "%Y-%m-%d")
+                queryset = queryset.filter(time__date=selected_date_obj)
+            except ValueError:
+                pass  # Handle invalid date format
+        
+        return queryset
 
 # used to generate a bill object and save items
 class SaleCreateView(View):                                                      

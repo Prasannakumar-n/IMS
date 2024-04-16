@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import View, TemplateView
 from inventory.models import Stock
-from transactions.models import SaleBill, PurchaseBill
+from transactions.models import SaleBill, PurchaseBill,  Supplier, PurchaseBillDetails, PurchaseItem, SaleBillDetails, SaleItem
 
 class HomeView(View):
     template_name = "home.html"
@@ -62,4 +62,28 @@ def signup(request):
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+# from .models import YourModel
+
+@login_required
+def clear_data(request):
+    if request.method == 'POST':
+        try:
+            # Delete all data from the backend
+            Stock.objects.all().delete()
+            SaleBill.objects.all().delete()
+            PurchaseBill.objects.all().delete()
+            Supplier.objects.all().delete()
+            PurchaseItem.objects.all().delete()
+            PurchaseBillDetails.objects.all().delete()
+            SaleBillDetails.objects.all().delete()
+            SaleItem.objects.all().delete()
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        # Handle GET request or other methods if needed
+        return JsonResponse({"error": "Method not allowed."}, status=405)
 

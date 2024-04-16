@@ -58,7 +58,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # 'login_required.middleware.LoginRequiredMiddleware',    # middleware used for global login
+    'login_required.middleware.LoginRequiredMiddleware',    # middleware used for global login
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -141,6 +141,7 @@ LOGIN_REQUIRED_IGNORE_VIEW_NAMES = [                    # urls ignored by the lo
     'login',
     'logout',
     'about',
+    'signup'
 ]
 
 
