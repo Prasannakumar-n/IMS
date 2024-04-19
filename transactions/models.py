@@ -17,6 +17,7 @@ class PurchaseBill(models.Model):
     billno = models.AutoField(primary_key=True)
     time = models.DateTimeField(auto_now=True)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='purchasesupplier')
+    auto_generated = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Bill no: {self.billno}"
@@ -29,7 +30,6 @@ class PurchaseBill(models.Model):
         total = 0
         for item in purchaseitems:
             total += item.totalprice
-        return total
 
 class PurchaseItem(models.Model):
     billno = models.ForeignKey(PurchaseBill, on_delete=models.CASCADE, related_name='purchasebillno')

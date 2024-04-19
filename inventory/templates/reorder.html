@@ -3,7 +3,7 @@
 {% block title %} Reorder Products {% endblock title %}
 
 {% block content %}
-    <div style="color: #4e4e4e; font-style: bold; font-size: 3rem;">Products to be Reordered</div>
+    <div style="color: #4e4e4e; font-style: bold; font-size: 3rem;">Products Reordered</div>
 
     <table class="table table-css table-bordered table-hover">
         <thead class="thead-dark align-middle">
@@ -11,7 +11,7 @@
                 <th width="40%">Stock Name</th>
                 <th>Current Stock in Inventory</th>
                 <th>Cost</th>
-                <th>Action</th>  <!-- New column for the Reorder button -->
+                {% comment %} <th>Action</th>  <!-- New column for the Reorder button --> {% endcomment %}
             </tr>
         </thead>
         <tbody>
@@ -20,10 +20,10 @@
                     <td>{{ product.name }}</td>
                     <td>{{ product.quantity }}</td>
                     <td>{{ product.cost }}</td>
-                    <td class="text-center">
+                    {% comment %} <td class="text-center">
                         <!-- Placeholder button without functionality -->
                         <button type="button" class="btn btn-primary">Reorder Now</button>
-                    </td>
+                    </td> {% endcomment %}
                 </tr>
             {% endfor %}
         </tbody>

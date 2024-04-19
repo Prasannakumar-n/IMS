@@ -42,7 +42,6 @@
 </div>
 
 <br>
-<button id="clearDataButton">Clear Data</button>
 
 <div class="row">
     <div class="col-md-6">
@@ -152,27 +151,5 @@
             window.location.href = `?product=${selectedProduct}`;
         }
     }
-    document.getElementById("clearDataButton").addEventListener("click", function() {
-        // Send an AJAX request to the Django view that deletes the data
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/clear-data/", true);
-        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");  // Include CSRF token
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                // Data cleared successfully
-                alert("Data cleared successfully!");
-                // Optionally, you can redirect to another page or reload the current page
-                window.location.reload();
-            } else {
-                // Handle error
-                alert("Error: Failed to clear data.");
-            }
-        };
-        xhr.onerror = function() {
-            // Handle network errors
-            alert("Error: Network error.");
-        };
-        xhr.send();
-    });
 </script>
 {% endblock content %}
